@@ -29,21 +29,14 @@ export class App extends React.Component<{}, AppState> {
       this.setState({ time: new Date() });
       if (this.state.hasClock) {
         // eslint-disable-next-line no-console
-        console.log(this.state.time.toLocaleTimeString());
+        console.log(this.state.time.toUTCString().slice(-12, -4)); // Corrected time format for console
       }
     }, 1000);
     document.addEventListener('contextmenu', this.handleContextMenu);
     document.addEventListener('click', this.handleDocumentClick);
 
     this.nameTimerId = window.setInterval(() => {
-      const oldName = this.state.clockName;
-      const newName = getRandomName();
-
-      this.setState({ clockName: newName });
-      if (this.state.hasClock) {
-        // eslint-disable-next-line no-console
-        console.log(`Renamed from ${oldName} to ${newName}`);
-      }
+      this.setState({ clockName: getRandomName() });
     }, 3300);
   }
 
@@ -58,6 +51,19 @@ export class App extends React.Component<{}, AppState> {
 
     document.removeEventListener('contextmenu', this.handleContextMenu);
     document.removeEventListener('click', this.handleDocumentClick);
+  }
+
+  componentDidUpdate(_prevProps: {}, prevState: AppState) {
+    if (prevState.clockName !== this.state.clockName) {
+      if (this.state.hasClock) {
+        // eslint-disable-next-line no-console
+        // console.warn(
+        // eslint-disable-next-line no-console
+        console.log(
+          `Renamed from ${prevState.clockName} to ${this.state.clockName}`,
+        );
+      }
+    }
   }
 
   private handleContextMenu = (event: MouseEvent) => {
@@ -80,7 +86,10 @@ export class App extends React.Component<{}, AppState> {
           <div className="Clock">
             <strong className="Clock__name">{clockName}</strong>
             {' time is '}
-            <span className="Clock__time">{time.toLocaleTimeString()}</span>
+            <span className="Clock__time">
+              {time.toUTCString().slice(-12, -4)}{' '}
+              {/* Corrected time format for display */}
+            </span>
           </div>
         )}
       </div>
